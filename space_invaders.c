@@ -1,6 +1,6 @@
 
 #include <stdio.h>
-#include <string.h>
+/*#include <string.h>*/
 
 /* spaceship default parameters */
 #define SPACESHIP_LIFE_MAX 3
@@ -94,4 +94,10 @@ ennemy init_ennemy(enum ennemy_types type) {
 coordinates update_coordinates(uint8_t x, uint8_t y) {
     coordinates.x = x;
     coordinates.y = y;
+}
+
+int main(void) {
+
+
+    return 0;
 }
