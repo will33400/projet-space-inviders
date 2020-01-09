@@ -5,8 +5,8 @@
     "tasks": [
         {
             "type": "shell",
-            "label": "cl.exe build active file",
-            "command": "cl.exe",
+            "label": "cl build active file",
+            "command": "cl",
             "args": [
                 "/Zi",
                 "/EHsc",
@@ -20,6 +20,9 @@
             "group": {
                 "kind": "build",
                 "isDefault": true
+            },
+            "presentation": {
+                "reveal": "always"
             }
         }
     ]
