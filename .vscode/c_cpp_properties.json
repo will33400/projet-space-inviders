@@ -1,0 +1,21 @@
+{
+    "configurations": [
+        {
+            "name": "Win32",
+            "includePath": [
+                "${workspaceFolder}/**"
+            ],
+            "defines": [
+                "_DEBUG",
+                "UNICODE",
+                "_UNICODE"
+            ],
+            "compilerPath": "D:/Visual Studio/VC/Tools/MSVC/14.24.28314/bin/Hostx64/x64/cl.exe",
+            "intelliSenseMode": "msvc-x64",
+            "cStandard": "c99",
+            "windowsSdkVersion": "10.0.17763.0",
+            "cppStandard": "c++11"
+        }
+    ],
+    "version": 4
+}
