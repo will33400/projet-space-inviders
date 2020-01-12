@@ -28,7 +28,7 @@
 char uart_data[256];
 char uart_data_long;
 
-void uart_init(void) {
+void inline uart_init(void) {
 	//baud_rate 9600
 	//ubrr_set = F_CPU/16/baud_rate-1
 	
@@ -80,10 +80,10 @@ void uart_init(void) {
 	*/
 }
 
-void uart_send(char data_buffer) {
+void inline uart_send(char data_buffer) {
 	UCSR0B = UCSR0B_SEND;
-	while (UCSR0B&(1>>TXCIE0));
-	while (!(UCSR0A & (1<<UDRE0)));
+	while (UCSR0B&(1>>TXCIE0)) {}
+	while (!(UCSR0A & (1<<UDRE0))) {}
 	UDR0 = data_buffer;
 }
 /*
@@ -98,19 +98,19 @@ void uart_long_ascii_array_conversion(long data_buffer) {
 	}
 }
 */
-long pow_function(long value, long power) {
+long inline pow_function(long value, long power) {
 	long value_temp = value;
 	for (long index = power; index >= 0; index--) value *= value_temp;
 	return value;
 }
 
 //interrupts routines
-void transmission_complete() {
+void inline transmission_complete() {
 	UCSR0B = ~(1<<TXCIE0);
 	while (UCSR0B&(1<<TXCIE0));
 }
 
-void keyboard_mode() {
+void inline keyboard_mode() {
 	UCSR0B = ~(1<<RXCIE0);
 	while (UCSR0B&(1<<RXCIE0));
 	char r = UDR0;
