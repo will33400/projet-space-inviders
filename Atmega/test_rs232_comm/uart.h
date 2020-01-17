@@ -9,6 +9,8 @@
 #ifndef UART_H_
 #define UART_H_
 
+#include <avr/io.h>
+
 #define UCSR0A_INIT (1<<UDRE0)
 
 #define UCSR0B_TXIEN (1<<TXCIE0)
@@ -106,15 +108,19 @@ long inline pow_function(long value, long power) {
 
 //interrupts routines
 void inline transmission_complete() {
-	UCSR0B = ~(1<<TXCIE0);
+	UCSR0A &= ~(1<<TXCIE0);
 	while (UCSR0B&(1<<TXCIE0));
+	UCSR0A |= (1<<TXCIE0);
+	while (!(UCSR0B&(1<<TXCIE0)));
 }
 
 void inline keyboard_mode() {
-	UCSR0B = ~(1<<RXCIE0);
+	UCSR0B &= ~(1<<RXCIE0);
 	while (UCSR0B&(1<<RXCIE0));
 	char r = UDR0;
 	uart_send(r);
+	UCSR0B |= (1<<RXCIE0);
+	while (!(UCSR0B&(1<<RXCIE0)));
 }
 
 #endif /* UART_H_ */
