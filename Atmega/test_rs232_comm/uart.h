@@ -18,7 +18,7 @@
 #define UCSR0B_RXEN (1<<RXEN0)
 #define UCSR0B_TXEN (1<<TXEN0)
 #define UCSR0B_INIT (UCSR0B_RXIEN | UCSR0B_TXIEN | UCSR0B_TXEN | UCSR0B_RXEN)
-#define UCSR0B_SEND 0b01011000
+#define UCSR0B_SEND (1<<TXCIE0) | (1<<RXEN0) | (1<<TXEN0)
 
 #define UCSR0C_SB (1<<USBS0)
 #define UCSR0C_MODE_1 ((1<<UCSZ01) | (1<<UCSZ00))
@@ -82,10 +82,12 @@ void inline uart_init(void) {
 	*/
 }
 
+char r;
+
 void inline uart_send(char data_buffer) {
 	UCSR0B = UCSR0B_SEND;
-	while (UCSR0B&(1>>TXCIE0)) {}
-	while (!(UCSR0A & (1<<UDRE0))) {}
+	while (!(UCSR0B&(1<<TXCIE0)));
+	while (!(UCSR0A&(1<<UDRE0)));
 	UDR0 = data_buffer;
 }
 /*
@@ -108,17 +110,18 @@ long inline pow_function(long value, long power) {
 
 //interrupts routines
 void inline transmission_complete() {
-	UCSR0A &= ~(1<<TXCIE0);
-	while (UCSR0B&(1<<TXCIE0));
-	UCSR0A |= (1<<TXCIE0);
-	while (!(UCSR0B&(1<<TXCIE0)));
+	UCSR0A |= (1<<TXC0);
+	while (UCSR0B&(1<<TXC0));
 }
 
 void inline keyboard_mode() {
 	UCSR0B &= ~(1<<RXCIE0);
 	while (UCSR0B&(1<<RXCIE0));
-	char r = UDR0;
+	
+	r = UDR0;
+	
 	uart_send(r);
+	
 	UCSR0B |= (1<<RXCIE0);
 	while (!(UCSR0B&(1<<RXCIE0)));
 }

@@ -3,29 +3,31 @@ test_rs232_comm.elf:     file format elf32-avr
 
 Sections:
 Idx Name          Size      VMA       LMA       File off  Algn
-  0 .data         00000000  00800100  00800100  000001b0  2**0
+  0 .data         00000000  00800100  00800100  0000055a  2**0
                   CONTENTS, ALLOC, LOAD, DATA
-  1 .text         0000015c  00000000  00000000  00000054  2**1
+  1 .text         000004e6  00000000  00000000  00000074  2**1
                   CONTENTS, ALLOC, LOAD, READONLY, CODE
-  2 .comment      00000030  00000000  00000000  000001b0  2**0
+  2 .bss          0000010d  00800100  00800100  0000055a  2**0
+                  ALLOC
+  3 .comment      00000030  00000000  00000000  0000055a  2**0
                   CONTENTS, READONLY
-  3 .note.gnu.avr.deviceinfo 00000040  00000000  00000000  000001e0  2**2
+  4 .note.gnu.avr.deviceinfo 00000040  00000000  00000000  0000058c  2**2
                   CONTENTS, READONLY
-  4 .debug_aranges 00000030  00000000  00000000  00000220  2**0
+  5 .debug_aranges 00000058  00000000  00000000  000005cc  2**0
                   CONTENTS, READONLY, DEBUGGING
-  5 .debug_info   00000857  00000000  00000000  00000250  2**0
+  6 .debug_info   00000c3e  00000000  00000000  00000624  2**0
                   CONTENTS, READONLY, DEBUGGING
-  6 .debug_abbrev 000006ec  00000000  00000000  00000aa7  2**0
+  7 .debug_abbrev 00000807  00000000  00000000  00001262  2**0
                   CONTENTS, READONLY, DEBUGGING
-  7 .debug_line   0000029a  00000000  00000000  00001193  2**0
+  8 .debug_line   0000058f  00000000  00000000  00001a69  2**0
                   CONTENTS, READONLY, DEBUGGING
-  8 .debug_frame  00000080  00000000  00000000  00001430  2**2
+  9 .debug_frame  000000dc  00000000  00000000  00001ff8  2**2
                   CONTENTS, READONLY, DEBUGGING
-  9 .debug_str    00000438  00000000  00000000  000014b0  2**0
+ 10 .debug_str    00000459  00000000  00000000  000020d4  2**0
                   CONTENTS, READONLY, DEBUGGING
- 10 .debug_loc    000000df  00000000  00000000  000018e8  2**0
+ 11 .debug_loc    00000320  00000000  00000000  0000252d  2**0
                   CONTENTS, READONLY, DEBUGGING
- 11 .debug_ranges 00000020  00000000  00000000  000019c7  2**0
+ 12 .debug_ranges 00000038  00000000  00000000  0000284d  2**0
                   CONTENTS, READONLY, DEBUGGING
 
 Disassembly of section .text:
@@ -49,9 +51,9 @@ Disassembly of section .text:
   3c:	0c 94 46 00 	jmp	0x8c	; 0x8c <__bad_interrupt>
   40:	0c 94 46 00 	jmp	0x8c	; 0x8c <__bad_interrupt>
   44:	0c 94 46 00 	jmp	0x8c	; 0x8c <__bad_interrupt>
-  48:	0c 94 7c 00 	jmp	0xf8	; 0xf8 <__vector_18>
+  48:	0c 94 62 00 	jmp	0xc4	; 0xc4 <__vector_18>
   4c:	0c 94 46 00 	jmp	0x8c	; 0x8c <__bad_interrupt>
-  50:	0c 94 58 00 	jmp	0xb0	; 0xb0 <__vector_20>
+  50:	0c 94 48 00 	jmp	0x90	; 0x90 <__vector_20>
   54:	0c 94 46 00 	jmp	0x8c	; 0x8c <__bad_interrupt>
   58:	0c 94 46 00 	jmp	0x8c	; 0x8c <__bad_interrupt>
   5c:	0c 94 46 00 	jmp	0x8c	; 0x8c <__bad_interrupt>
@@ -67,7 +69,7 @@ Disassembly of section .text:
   72:	cd bf       	out	0x3d, r28	; 61
 
 00000074 <__do_clear_bss>:
-  74:	21 e0       	ldi	r18, 0x01	; 1
+  74:	22 e0       	ldi	r18, 0x02	; 2
   76:	a0 e0       	ldi	r26, 0x00	; 0
   78:	b1 e0       	ldi	r27, 0x01	; 1
   7a:	01 c0       	rjmp	.+2      	; 0x7e <.do_clear_bss_start>
@@ -76,195 +78,821 @@ Disassembly of section .text:
   7c:	1d 92       	st	X+, r1
 
 0000007e <.do_clear_bss_start>:
-  7e:	a0 30       	cpi	r26, 0x00	; 0
+  7e:	ad 30       	cpi	r26, 0x0D	; 13
   80:	b2 07       	cpc	r27, r18
   82:	e1 f7       	brne	.-8      	; 0x7c <.do_clear_bss_loop>
-  84:	0e 94 48 00 	call	0x90	; 0x90 <main>
-  88:	0c 94 ac 00 	jmp	0x158	; 0x158 <_exit>
+  84:	0e 94 a9 00 	call	0x152	; 0x152 <main>
+  88:	0c 94 71 02 	jmp	0x4e2	; 0x4e2 <_exit>
 
 0000008c <__bad_interrupt>:
   8c:	0c 94 00 00 	jmp	0	; 0x0 <__vectors>
 
-00000090 <main>:
+00000090 <__vector_20>:
+#include "uart.h"
+#include "space_invaders.h"
+#include "vt100.h"
+
+
+ISR(USART_TX_vect, ISR_BLOCK) {
+  90:	1f 92       	push	r1
+  92:	0f 92       	push	r0
+  94:	0f b6       	in	r0, 0x3f	; 63
+  96:	0f 92       	push	r0
+  98:	11 24       	eor	r1, r1
+  9a:	8f 93       	push	r24
+  9c:	ef 93       	push	r30
+  9e:	ff 93       	push	r31
+	return value;
+}
+
+//interrupts routines
+void inline transmission_complete() {
+	UCSR0A |= (1<<TXC0);
+  a0:	e0 ec       	ldi	r30, 0xC0	; 192
+  a2:	f0 e0       	ldi	r31, 0x00	; 0
+  a4:	80 81       	ld	r24, Z
+  a6:	80 64       	ori	r24, 0x40	; 64
+  a8:	80 83       	st	Z, r24
+	while (UCSR0B&(1<<TXC0));
+  aa:	e1 ec       	ldi	r30, 0xC1	; 193
+  ac:	f0 e0       	ldi	r31, 0x00	; 0
+  ae:	80 81       	ld	r24, Z
+  b0:	86 fd       	sbrc	r24, 6
+  b2:	fd cf       	rjmp	.-6      	; 0xae <__vector_20+0x1e>
+	transmission_complete();
+	//uart_init();
+}
+  b4:	ff 91       	pop	r31
+  b6:	ef 91       	pop	r30
+  b8:	8f 91       	pop	r24
+  ba:	0f 90       	pop	r0
+  bc:	0f be       	out	0x3f, r0	; 63
+  be:	0f 90       	pop	r0
+  c0:	1f 90       	pop	r1
+  c2:	18 95       	reti
+
+000000c4 <__vector_18>:
+
+ISR(USART_RX_vect, ISR_BLOCK) {
+  c4:	1f 92       	push	r1
+  c6:	0f 92       	push	r0
+  c8:	0f b6       	in	r0, 0x3f	; 63
+  ca:	0f 92       	push	r0
+  cc:	11 24       	eor	r1, r1
+  ce:	2f 93       	push	r18
+  d0:	3f 93       	push	r19
+  d2:	4f 93       	push	r20
+  d4:	5f 93       	push	r21
+  d6:	6f 93       	push	r22
+  d8:	7f 93       	push	r23
+  da:	8f 93       	push	r24
+  dc:	9f 93       	push	r25
+  de:	af 93       	push	r26
+  e0:	bf 93       	push	r27
+  e2:	ef 93       	push	r30
+  e4:	ff 93       	push	r31
+	vt100_clear_screen();
+  e6:	0e 94 d0 01 	call	0x3a0	; 0x3a0 <vt100_clear_screen>
+}
+
+void inline keyboard_mode() {
+	UCSR0B &= ~(1<<RXCIE0);
+  ea:	e1 ec       	ldi	r30, 0xC1	; 193
+  ec:	f0 e0       	ldi	r31, 0x00	; 0
+  ee:	80 81       	ld	r24, Z
+  f0:	8f 77       	andi	r24, 0x7F	; 127
+  f2:	80 83       	st	Z, r24
+	while (UCSR0B&(1<<RXCIE0));
+  f4:	80 81       	ld	r24, Z
+  f6:	88 23       	and	r24, r24
+  f8:	ec f3       	brlt	.-6      	; 0xf4 <__vector_18+0x30>
+	
+	r = UDR0;
+  fa:	90 91 c6 00 	lds	r25, 0x00C6	; 0x8000c6 <__TEXT_REGION_LENGTH__+0x7e00c6>
+  fe:	90 93 0b 01 	sts	0x010B, r25	; 0x80010b <r>
+}
+
+char r;
+
+void inline uart_send(char data_buffer) {
+	UCSR0B = UCSR0B_SEND;
+ 102:	88 e5       	ldi	r24, 0x58	; 88
+ 104:	80 93 c1 00 	sts	0x00C1, r24	; 0x8000c1 <__TEXT_REGION_LENGTH__+0x7e00c1>
+	while (!(UCSR0B&(1<<TXCIE0)));
+ 108:	e1 ec       	ldi	r30, 0xC1	; 193
+ 10a:	f0 e0       	ldi	r31, 0x00	; 0
+ 10c:	80 81       	ld	r24, Z
+ 10e:	86 ff       	sbrs	r24, 6
+ 110:	fd cf       	rjmp	.-6      	; 0x10c <__vector_18+0x48>
+	while (!(UCSR0A&(1<<UDRE0)));
+ 112:	e0 ec       	ldi	r30, 0xC0	; 192
+ 114:	f0 e0       	ldi	r31, 0x00	; 0
+ 116:	80 81       	ld	r24, Z
+ 118:	85 ff       	sbrs	r24, 5
+ 11a:	fd cf       	rjmp	.-6      	; 0x116 <__vector_18+0x52>
+	UDR0 = data_buffer;
+ 11c:	90 93 c6 00 	sts	0x00C6, r25	; 0x8000c6 <__TEXT_REGION_LENGTH__+0x7e00c6>
+	
+	r = UDR0;
+	
+	uart_send(r);
+	
+	UCSR0B |= (1<<RXCIE0);
+ 120:	e1 ec       	ldi	r30, 0xC1	; 193
+ 122:	f0 e0       	ldi	r31, 0x00	; 0
+ 124:	80 81       	ld	r24, Z
+ 126:	80 68       	ori	r24, 0x80	; 128
+ 128:	80 83       	st	Z, r24
+	while (!(UCSR0B&(1<<RXCIE0)));
+ 12a:	80 81       	ld	r24, Z
+ 12c:	88 23       	and	r24, r24
+ 12e:	ec f7       	brge	.-6      	; 0x12a <__vector_18+0x66>
+	keyboard_mode();
+	//uart_init();
+}
+ 130:	ff 91       	pop	r31
+ 132:	ef 91       	pop	r30
+ 134:	bf 91       	pop	r27
+ 136:	af 91       	pop	r26
+ 138:	9f 91       	pop	r25
+ 13a:	8f 91       	pop	r24
+ 13c:	7f 91       	pop	r23
+ 13e:	6f 91       	pop	r22
+ 140:	5f 91       	pop	r21
+ 142:	4f 91       	pop	r20
+ 144:	3f 91       	pop	r19
+ 146:	2f 91       	pop	r18
+ 148:	0f 90       	pop	r0
+ 14a:	0f be       	out	0x3f, r0	; 63
+ 14c:	0f 90       	pop	r0
+ 14e:	1f 90       	pop	r1
+ 150:	18 95       	reti
+
+00000152 <main>:
 
 void inline uart_init(void) {
 	//baud_rate 9600
 	//ubrr_set = F_CPU/16/baud_rate-1
 	
 	UCSR0A = UCSR0A_INIT;
-  90:	80 e2       	ldi	r24, 0x20	; 32
-  92:	80 93 c0 00 	sts	0x00C0, r24	; 0x8000c0 <__TEXT_REGION_LENGTH__+0x7e00c0>
+ 152:	80 e2       	ldi	r24, 0x20	; 32
+ 154:	80 93 c0 00 	sts	0x00C0, r24	; 0x8000c0 <__TEXT_REGION_LENGTH__+0x7e00c0>
 	Bit 3 DOR0: Data OverRun
 	Bit 2 UPE0: USART Parity Error
 	Bit 1 U2X0: Double the USART Transmission Speed
 	Bit 0 MPCM0: Multi-processor Communication Mode
 	*/
 	UCSR0B = UCSR0B_INIT;
-  96:	88 ed       	ldi	r24, 0xD8	; 216
-  98:	80 93 c1 00 	sts	0x00C1, r24	; 0x8000c1 <__TEXT_REGION_LENGTH__+0x7e00c1>
+ 158:	c1 ec       	ldi	r28, 0xC1	; 193
+ 15a:	d0 e0       	ldi	r29, 0x00	; 0
+ 15c:	88 ed       	ldi	r24, 0xD8	; 216
+ 15e:	88 83       	st	Y, r24
 	Bit 3 TXEN0: Transmitter Enable 0
 	Bit 2 UCSZ02: Character Size 0
 	Bit 1 RXB80: Receive Data Bit 8 0
 	Bit 0 TXB80: Transmit Data Bit 8 0
 	*/
 	UCSR0C = UCSR0C_INIT;
-  9c:	8e e0       	ldi	r24, 0x0E	; 14
-  9e:	80 93 c2 00 	sts	0x00C2, r24	; 0x8000c2 <__TEXT_REGION_LENGTH__+0x7e00c2>
+ 160:	8e e0       	ldi	r24, 0x0E	; 14
+ 162:	80 93 c2 00 	sts	0x00C2, r24	; 0x8000c2 <__TEXT_REGION_LENGTH__+0x7e00c2>
 	Bit 2 UCSZ01 / UDORD0: USART Character Size / Data Order
 	Bit 1 UCSZ00 / UCPHA0: USART Character Size / Clock Phase
 	Bit 0 UCPOL0: Clock Polarity 0
 	*/
 	//UBRR0L = 0b00000001;
 	UBRR0L = BAUD_9600_8MHZ;
-  a2:	83 e3       	ldi	r24, 0x33	; 51
-  a4:	80 93 c4 00 	sts	0x00C4, r24	; 0x8000c4 <__TEXT_REGION_LENGTH__+0x7e00c4>
+ 166:	83 e3       	ldi	r24, 0x33	; 51
+ 168:	80 93 c4 00 	sts	0x00C4, r24	; 0x8000c4 <__TEXT_REGION_LENGTH__+0x7e00c4>
 	//UBRR0L = 3;
 	/*
 	Bits 7:0 UBRR0[7:0]: USART Baud Rate 0
 	*/
 	//UBRR0H = 0b00000000;
 	UBRR0H = 0;
-  a8:	10 92 c5 00 	sts	0x00C5, r1	; 0x8000c5 <__TEXT_REGION_LENGTH__+0x7e00c5>
-
+ 16c:	10 92 c5 00 	sts	0x00C5, r1	; 0x8000c5 <__TEXT_REGION_LENGTH__+0x7e00c5>
 
 int main(void) {
 	
 	uart_init();
 	sei();
-  ac:	78 94       	sei
-  ae:	ff cf       	rjmp	.-2      	; 0xae <main+0x1e>
-
-000000b0 <__vector_20>:
-	}
+ 170:	78 94       	sei
 	
-	return 0;
+	vt100_move(0,0);
+ 172:	60 e0       	ldi	r22, 0x00	; 0
+ 174:	80 e0       	ldi	r24, 0x00	; 0
+ 176:	0e 94 e3 00 	call	0x1c6	; 0x1c6 <vt100_move>
+	
+	vt100_clear_screen();
+ 17a:	0e 94 d0 01 	call	0x3a0	; 0x3a0 <vt100_clear_screen>
 }
 
-ISR(USART_TX_vect, ISR_BLOCK) {
-  b0:	1f 92       	push	r1
-  b2:	0f 92       	push	r0
-  b4:	0f b6       	in	r0, 0x3f	; 63
-  b6:	0f 92       	push	r0
-  b8:	11 24       	eor	r1, r1
-  ba:	8f 93       	push	r24
-  bc:	ef 93       	push	r30
-  be:	ff 93       	push	r31
-	return value;
-}
-
-//interrupts routines
-void inline transmission_complete() {
-	UCSR0A &= ~(1<<TXCIE0);
-  c0:	e0 ec       	ldi	r30, 0xC0	; 192
-  c2:	f0 e0       	ldi	r31, 0x00	; 0
-  c4:	80 81       	ld	r24, Z
-  c6:	8f 7b       	andi	r24, 0xBF	; 191
-  c8:	80 83       	st	Z, r24
-	while (UCSR0B&(1<<TXCIE0));
-  ca:	e1 ec       	ldi	r30, 0xC1	; 193
-  cc:	f0 e0       	ldi	r31, 0x00	; 0
-  ce:	80 81       	ld	r24, Z
-  d0:	86 fd       	sbrc	r24, 6
-  d2:	fd cf       	rjmp	.-6      	; 0xce <__vector_20+0x1e>
-	UCSR0A |= (1<<TXCIE0);
-  d4:	e0 ec       	ldi	r30, 0xC0	; 192
-  d6:	f0 e0       	ldi	r31, 0x00	; 0
-  d8:	80 81       	ld	r24, Z
-  da:	80 64       	ori	r24, 0x40	; 64
-  dc:	80 83       	st	Z, r24
-	while (!(UCSR0B&(1<<TXCIE0)));
-  de:	e1 ec       	ldi	r30, 0xC1	; 193
-  e0:	f0 e0       	ldi	r31, 0x00	; 0
-  e2:	80 81       	ld	r24, Z
-  e4:	86 ff       	sbrs	r24, 6
-  e6:	fd cf       	rjmp	.-6      	; 0xe2 <__vector_20+0x32>
-	transmission_complete();
-}
-  e8:	ff 91       	pop	r31
-  ea:	ef 91       	pop	r30
-  ec:	8f 91       	pop	r24
-  ee:	0f 90       	pop	r0
-  f0:	0f be       	out	0x3f, r0	; 63
-  f2:	0f 90       	pop	r0
-  f4:	1f 90       	pop	r1
-  f6:	18 95       	reti
-
-000000f8 <__vector_18>:
-
-ISR(USART_RX_vect, ISR_BLOCK) {
-  f8:	1f 92       	push	r1
-  fa:	0f 92       	push	r0
-  fc:	0f b6       	in	r0, 0x3f	; 63
-  fe:	0f 92       	push	r0
- 100:	11 24       	eor	r1, r1
- 102:	8f 93       	push	r24
- 104:	9f 93       	push	r25
- 106:	ef 93       	push	r30
- 108:	ff 93       	push	r31
-}
-
-void inline keyboard_mode() {
-	UCSR0B &= ~(1<<RXCIE0);
- 10a:	e1 ec       	ldi	r30, 0xC1	; 193
- 10c:	f0 e0       	ldi	r31, 0x00	; 0
- 10e:	80 81       	ld	r24, Z
- 110:	8f 77       	andi	r24, 0x7F	; 127
- 112:	80 83       	st	Z, r24
-	while (UCSR0B&(1<<RXCIE0));
- 114:	80 81       	ld	r24, Z
- 116:	88 23       	and	r24, r24
- 118:	ec f3       	brlt	.-6      	; 0x114 <__vector_18+0x1c>
-	char r = UDR0;
- 11a:	90 91 c6 00 	lds	r25, 0x00C6	; 0x8000c6 <__TEXT_REGION_LENGTH__+0x7e00c6>
-	Bits 7:0 TXB / RXB[7:0]: USART Transmit / Receive Data Buffer
-	*/
-}
+char r;
 
 void inline uart_send(char data_buffer) {
 	UCSR0B = UCSR0B_SEND;
- 11e:	e1 ec       	ldi	r30, 0xC1	; 193
- 120:	f0 e0       	ldi	r31, 0x00	; 0
- 122:	88 e5       	ldi	r24, 0x58	; 88
- 124:	80 83       	st	Z, r24
-	while (UCSR0B&(1>>TXCIE0)) {}
- 126:	80 81       	ld	r24, Z
-	while (!(UCSR0A & (1<<UDRE0))) {}
- 128:	e0 ec       	ldi	r30, 0xC0	; 192
- 12a:	f0 e0       	ldi	r31, 0x00	; 0
- 12c:	80 81       	ld	r24, Z
- 12e:	85 ff       	sbrs	r24, 5
- 130:	fd cf       	rjmp	.-6      	; 0x12c <__vector_18+0x34>
+ 17e:	88 e5       	ldi	r24, 0x58	; 88
+ 180:	88 83       	st	Y, r24
+	while (!(UCSR0B&(1<<TXCIE0)));
+ 182:	e1 ec       	ldi	r30, 0xC1	; 193
+ 184:	f0 e0       	ldi	r31, 0x00	; 0
+ 186:	80 81       	ld	r24, Z
+ 188:	86 ff       	sbrs	r24, 6
+ 18a:	fd cf       	rjmp	.-6      	; 0x186 <main+0x34>
+	while (!(UCSR0A&(1<<UDRE0)));
+ 18c:	e0 ec       	ldi	r30, 0xC0	; 192
+ 18e:	f0 e0       	ldi	r31, 0x00	; 0
+ 190:	80 81       	ld	r24, Z
+ 192:	85 ff       	sbrs	r24, 5
+ 194:	fd cf       	rjmp	.-6      	; 0x190 <main+0x3e>
 	UDR0 = data_buffer;
- 132:	90 93 c6 00 	sts	0x00C6, r25	; 0x8000c6 <__TEXT_REGION_LENGTH__+0x7e00c6>
-void inline keyboard_mode() {
-	UCSR0B &= ~(1<<RXCIE0);
-	while (UCSR0B&(1<<RXCIE0));
-	char r = UDR0;
-	uart_send(r);
-	UCSR0B |= (1<<RXCIE0);
- 136:	e1 ec       	ldi	r30, 0xC1	; 193
- 138:	f0 e0       	ldi	r31, 0x00	; 0
- 13a:	80 81       	ld	r24, Z
- 13c:	80 68       	ori	r24, 0x80	; 128
- 13e:	80 83       	st	Z, r24
-	while (!(UCSR0B&(1<<RXCIE0)));
- 140:	80 81       	ld	r24, Z
- 142:	88 23       	and	r24, r24
- 144:	ec f7       	brge	.-6      	; 0x140 <__vector_18+0x48>
-	keyboard_mode();
+ 196:	81 e6       	ldi	r24, 0x61	; 97
+ 198:	80 93 c6 00 	sts	0x00C6, r24	; 0x8000c6 <__TEXT_REGION_LENGTH__+0x7e00c6>
+	uart_send('a');
+	vt100_move(5,5);
+ 19c:	65 e0       	ldi	r22, 0x05	; 5
+ 19e:	85 e0       	ldi	r24, 0x05	; 5
+ 1a0:	0e 94 e3 00 	call	0x1c6	; 0x1c6 <vt100_move>
 }
- 146:	ff 91       	pop	r31
- 148:	ef 91       	pop	r30
- 14a:	9f 91       	pop	r25
- 14c:	8f 91       	pop	r24
- 14e:	0f 90       	pop	r0
- 150:	0f be       	out	0x3f, r0	; 63
- 152:	0f 90       	pop	r0
- 154:	1f 90       	pop	r1
- 156:	18 95       	reti
 
-00000158 <_exit>:
- 158:	f8 94       	cli
+char r;
 
-0000015a <__stop_program>:
- 15a:	ff cf       	rjmp	.-2      	; 0x15a <__stop_program>
+void inline uart_send(char data_buffer) {
+	UCSR0B = UCSR0B_SEND;
+ 1a4:	88 e5       	ldi	r24, 0x58	; 88
+ 1a6:	80 93 c1 00 	sts	0x00C1, r24	; 0x8000c1 <__TEXT_REGION_LENGTH__+0x7e00c1>
+	while (!(UCSR0B&(1<<TXCIE0)));
+ 1aa:	e1 ec       	ldi	r30, 0xC1	; 193
+ 1ac:	f0 e0       	ldi	r31, 0x00	; 0
+ 1ae:	80 81       	ld	r24, Z
+ 1b0:	86 ff       	sbrs	r24, 6
+ 1b2:	fd cf       	rjmp	.-6      	; 0x1ae <main+0x5c>
+	while (!(UCSR0A&(1<<UDRE0)));
+ 1b4:	e0 ec       	ldi	r30, 0xC0	; 192
+ 1b6:	f0 e0       	ldi	r31, 0x00	; 0
+ 1b8:	80 81       	ld	r24, Z
+ 1ba:	85 ff       	sbrs	r24, 5
+ 1bc:	fd cf       	rjmp	.-6      	; 0x1b8 <main+0x66>
+	UDR0 = data_buffer;
+ 1be:	85 e6       	ldi	r24, 0x65	; 101
+ 1c0:	80 93 c6 00 	sts	0x00C6, r24	; 0x8000c6 <__TEXT_REGION_LENGTH__+0x7e00c6>
+ 1c4:	ff cf       	rjmp	.-2      	; 0x1c4 <main+0x72>
+
+000001c6 <vt100_move>:
+}
+
+char r;
+
+void inline uart_send(char data_buffer) {
+	UCSR0B = UCSR0B_SEND;
+ 1c6:	98 e5       	ldi	r25, 0x58	; 88
+ 1c8:	90 93 c1 00 	sts	0x00C1, r25	; 0x8000c1 <__TEXT_REGION_LENGTH__+0x7e00c1>
+	while (!(UCSR0B&(1<<TXCIE0)));
+ 1cc:	e1 ec       	ldi	r30, 0xC1	; 193
+ 1ce:	f0 e0       	ldi	r31, 0x00	; 0
+ 1d0:	90 81       	ld	r25, Z
+ 1d2:	96 ff       	sbrs	r25, 6
+ 1d4:	fd cf       	rjmp	.-6      	; 0x1d0 <vt100_move+0xa>
+	while (!(UCSR0A&(1<<UDRE0)));
+ 1d6:	e0 ec       	ldi	r30, 0xC0	; 192
+ 1d8:	f0 e0       	ldi	r31, 0x00	; 0
+ 1da:	90 81       	ld	r25, Z
+ 1dc:	95 ff       	sbrs	r25, 5
+ 1de:	fd cf       	rjmp	.-6      	; 0x1da <vt100_move+0x14>
+	UDR0 = data_buffer;
+ 1e0:	9b e1       	ldi	r25, 0x1B	; 27
+ 1e2:	90 93 c6 00 	sts	0x00C6, r25	; 0x8000c6 <__TEXT_REGION_LENGTH__+0x7e00c6>
+}
+
+char r;
+
+void inline uart_send(char data_buffer) {
+	UCSR0B = UCSR0B_SEND;
+ 1e6:	98 e5       	ldi	r25, 0x58	; 88
+ 1e8:	90 93 c1 00 	sts	0x00C1, r25	; 0x8000c1 <__TEXT_REGION_LENGTH__+0x7e00c1>
+	while (!(UCSR0B&(1<<TXCIE0)));
+ 1ec:	e1 ec       	ldi	r30, 0xC1	; 193
+ 1ee:	f0 e0       	ldi	r31, 0x00	; 0
+ 1f0:	90 81       	ld	r25, Z
+ 1f2:	96 ff       	sbrs	r25, 6
+ 1f4:	fd cf       	rjmp	.-6      	; 0x1f0 <vt100_move+0x2a>
+	while (!(UCSR0A&(1<<UDRE0)));
+ 1f6:	e0 ec       	ldi	r30, 0xC0	; 192
+ 1f8:	f0 e0       	ldi	r31, 0x00	; 0
+ 1fa:	90 81       	ld	r25, Z
+ 1fc:	95 ff       	sbrs	r25, 5
+ 1fe:	fd cf       	rjmp	.-6      	; 0x1fa <vt100_move+0x34>
+	UDR0 = data_buffer;
+ 200:	9b e5       	ldi	r25, 0x5B	; 91
+ 202:	90 93 c6 00 	sts	0x00C6, r25	; 0x8000c6 <__TEXT_REGION_LENGTH__+0x7e00c6>
+
+void vt100_move(uint8_t x, uint8_t y)
+{
+	uart_send(VT100_ESC);
+	uart_send('[');
+	uart_send('0' + (y / 100));
+ 206:	29 e2       	ldi	r18, 0x29	; 41
+ 208:	62 9f       	mul	r22, r18
+ 20a:	21 2d       	mov	r18, r1
+ 20c:	11 24       	eor	r1, r1
+ 20e:	22 95       	swap	r18
+ 210:	2f 70       	andi	r18, 0x0F	; 15
+ 212:	20 5d       	subi	r18, 0xD0	; 208
+}
+
+char r;
+
+void inline uart_send(char data_buffer) {
+	UCSR0B = UCSR0B_SEND;
+ 214:	98 e5       	ldi	r25, 0x58	; 88
+ 216:	90 93 c1 00 	sts	0x00C1, r25	; 0x8000c1 <__TEXT_REGION_LENGTH__+0x7e00c1>
+	while (!(UCSR0B&(1<<TXCIE0)));
+ 21a:	e1 ec       	ldi	r30, 0xC1	; 193
+ 21c:	f0 e0       	ldi	r31, 0x00	; 0
+ 21e:	90 81       	ld	r25, Z
+ 220:	96 ff       	sbrs	r25, 6
+ 222:	fd cf       	rjmp	.-6      	; 0x21e <vt100_move+0x58>
+	while (!(UCSR0A&(1<<UDRE0)));
+ 224:	e0 ec       	ldi	r30, 0xC0	; 192
+ 226:	f0 e0       	ldi	r31, 0x00	; 0
+ 228:	90 81       	ld	r25, Z
+ 22a:	95 ff       	sbrs	r25, 5
+ 22c:	fd cf       	rjmp	.-6      	; 0x228 <vt100_move+0x62>
+	UDR0 = data_buffer;
+ 22e:	20 93 c6 00 	sts	0x00C6, r18	; 0x8000c6 <__TEXT_REGION_LENGTH__+0x7e00c6>
+	uart_send('0' + ((y / 10) % 10));
+ 232:	9d ec       	ldi	r25, 0xCD	; 205
+ 234:	69 9f       	mul	r22, r25
+ 236:	21 2d       	mov	r18, r1
+ 238:	11 24       	eor	r1, r1
+ 23a:	26 95       	lsr	r18
+ 23c:	26 95       	lsr	r18
+ 23e:	26 95       	lsr	r18
+ 240:	29 9f       	mul	r18, r25
+ 242:	91 2d       	mov	r25, r1
+ 244:	11 24       	eor	r1, r1
+ 246:	96 95       	lsr	r25
+ 248:	96 95       	lsr	r25
+ 24a:	96 95       	lsr	r25
+ 24c:	99 0f       	add	r25, r25
+ 24e:	39 2f       	mov	r19, r25
+ 250:	33 0f       	add	r19, r19
+ 252:	33 0f       	add	r19, r19
+ 254:	93 0f       	add	r25, r19
+ 256:	29 1b       	sub	r18, r25
+ 258:	20 5d       	subi	r18, 0xD0	; 208
+}
+
+char r;
+
+void inline uart_send(char data_buffer) {
+	UCSR0B = UCSR0B_SEND;
+ 25a:	98 e5       	ldi	r25, 0x58	; 88
+ 25c:	90 93 c1 00 	sts	0x00C1, r25	; 0x8000c1 <__TEXT_REGION_LENGTH__+0x7e00c1>
+	while (!(UCSR0B&(1<<TXCIE0)));
+ 260:	e1 ec       	ldi	r30, 0xC1	; 193
+ 262:	f0 e0       	ldi	r31, 0x00	; 0
+ 264:	90 81       	ld	r25, Z
+ 266:	96 ff       	sbrs	r25, 6
+ 268:	fd cf       	rjmp	.-6      	; 0x264 <vt100_move+0x9e>
+	while (!(UCSR0A&(1<<UDRE0)));
+ 26a:	e0 ec       	ldi	r30, 0xC0	; 192
+ 26c:	f0 e0       	ldi	r31, 0x00	; 0
+ 26e:	90 81       	ld	r25, Z
+ 270:	95 ff       	sbrs	r25, 5
+ 272:	fd cf       	rjmp	.-6      	; 0x26e <vt100_move+0xa8>
+	UDR0 = data_buffer;
+ 274:	20 93 c6 00 	sts	0x00C6, r18	; 0x8000c6 <__TEXT_REGION_LENGTH__+0x7e00c6>
+	uart_send('0' + (y % 10));
+ 278:	9d ec       	ldi	r25, 0xCD	; 205
+ 27a:	69 9f       	mul	r22, r25
+ 27c:	91 2d       	mov	r25, r1
+ 27e:	11 24       	eor	r1, r1
+ 280:	96 95       	lsr	r25
+ 282:	96 95       	lsr	r25
+ 284:	96 95       	lsr	r25
+ 286:	99 0f       	add	r25, r25
+ 288:	29 2f       	mov	r18, r25
+ 28a:	22 0f       	add	r18, r18
+ 28c:	22 0f       	add	r18, r18
+ 28e:	92 0f       	add	r25, r18
+ 290:	69 1b       	sub	r22, r25
+ 292:	60 5d       	subi	r22, 0xD0	; 208
+}
+
+char r;
+
+void inline uart_send(char data_buffer) {
+	UCSR0B = UCSR0B_SEND;
+ 294:	98 e5       	ldi	r25, 0x58	; 88
+ 296:	90 93 c1 00 	sts	0x00C1, r25	; 0x8000c1 <__TEXT_REGION_LENGTH__+0x7e00c1>
+	while (!(UCSR0B&(1<<TXCIE0)));
+ 29a:	e1 ec       	ldi	r30, 0xC1	; 193
+ 29c:	f0 e0       	ldi	r31, 0x00	; 0
+ 29e:	90 81       	ld	r25, Z
+ 2a0:	96 ff       	sbrs	r25, 6
+ 2a2:	fd cf       	rjmp	.-6      	; 0x29e <vt100_move+0xd8>
+	while (!(UCSR0A&(1<<UDRE0)));
+ 2a4:	e0 ec       	ldi	r30, 0xC0	; 192
+ 2a6:	f0 e0       	ldi	r31, 0x00	; 0
+ 2a8:	90 81       	ld	r25, Z
+ 2aa:	95 ff       	sbrs	r25, 5
+ 2ac:	fd cf       	rjmp	.-6      	; 0x2a8 <vt100_move+0xe2>
+	UDR0 = data_buffer;
+ 2ae:	60 93 c6 00 	sts	0x00C6, r22	; 0x8000c6 <__TEXT_REGION_LENGTH__+0x7e00c6>
+}
+
+char r;
+
+void inline uart_send(char data_buffer) {
+	UCSR0B = UCSR0B_SEND;
+ 2b2:	98 e5       	ldi	r25, 0x58	; 88
+ 2b4:	90 93 c1 00 	sts	0x00C1, r25	; 0x8000c1 <__TEXT_REGION_LENGTH__+0x7e00c1>
+	while (!(UCSR0B&(1<<TXCIE0)));
+ 2b8:	e1 ec       	ldi	r30, 0xC1	; 193
+ 2ba:	f0 e0       	ldi	r31, 0x00	; 0
+ 2bc:	90 81       	ld	r25, Z
+ 2be:	96 ff       	sbrs	r25, 6
+ 2c0:	fd cf       	rjmp	.-6      	; 0x2bc <vt100_move+0xf6>
+	while (!(UCSR0A&(1<<UDRE0)));
+ 2c2:	e0 ec       	ldi	r30, 0xC0	; 192
+ 2c4:	f0 e0       	ldi	r31, 0x00	; 0
+ 2c6:	90 81       	ld	r25, Z
+ 2c8:	95 ff       	sbrs	r25, 5
+ 2ca:	fd cf       	rjmp	.-6      	; 0x2c6 <vt100_move+0x100>
+	UDR0 = data_buffer;
+ 2cc:	9b e3       	ldi	r25, 0x3B	; 59
+ 2ce:	90 93 c6 00 	sts	0x00C6, r25	; 0x8000c6 <__TEXT_REGION_LENGTH__+0x7e00c6>
+	uart_send(';');
+	uart_send('0' + (x / 100));
+ 2d2:	29 e2       	ldi	r18, 0x29	; 41
+ 2d4:	82 9f       	mul	r24, r18
+ 2d6:	21 2d       	mov	r18, r1
+ 2d8:	11 24       	eor	r1, r1
+ 2da:	22 95       	swap	r18
+ 2dc:	2f 70       	andi	r18, 0x0F	; 15
+ 2de:	20 5d       	subi	r18, 0xD0	; 208
+}
+
+char r;
+
+void inline uart_send(char data_buffer) {
+	UCSR0B = UCSR0B_SEND;
+ 2e0:	98 e5       	ldi	r25, 0x58	; 88
+ 2e2:	90 93 c1 00 	sts	0x00C1, r25	; 0x8000c1 <__TEXT_REGION_LENGTH__+0x7e00c1>
+	while (!(UCSR0B&(1<<TXCIE0)));
+ 2e6:	e1 ec       	ldi	r30, 0xC1	; 193
+ 2e8:	f0 e0       	ldi	r31, 0x00	; 0
+ 2ea:	90 81       	ld	r25, Z
+ 2ec:	96 ff       	sbrs	r25, 6
+ 2ee:	fd cf       	rjmp	.-6      	; 0x2ea <vt100_move+0x124>
+	while (!(UCSR0A&(1<<UDRE0)));
+ 2f0:	e0 ec       	ldi	r30, 0xC0	; 192
+ 2f2:	f0 e0       	ldi	r31, 0x00	; 0
+ 2f4:	90 81       	ld	r25, Z
+ 2f6:	95 ff       	sbrs	r25, 5
+ 2f8:	fd cf       	rjmp	.-6      	; 0x2f4 <vt100_move+0x12e>
+	UDR0 = data_buffer;
+ 2fa:	20 93 c6 00 	sts	0x00C6, r18	; 0x8000c6 <__TEXT_REGION_LENGTH__+0x7e00c6>
+	uart_send('0' + ((x / 10) % 10));
+ 2fe:	9d ec       	ldi	r25, 0xCD	; 205
+ 300:	89 9f       	mul	r24, r25
+ 302:	21 2d       	mov	r18, r1
+ 304:	11 24       	eor	r1, r1
+ 306:	26 95       	lsr	r18
+ 308:	26 95       	lsr	r18
+ 30a:	26 95       	lsr	r18
+ 30c:	29 9f       	mul	r18, r25
+ 30e:	91 2d       	mov	r25, r1
+ 310:	11 24       	eor	r1, r1
+ 312:	96 95       	lsr	r25
+ 314:	96 95       	lsr	r25
+ 316:	96 95       	lsr	r25
+ 318:	99 0f       	add	r25, r25
+ 31a:	39 2f       	mov	r19, r25
+ 31c:	33 0f       	add	r19, r19
+ 31e:	33 0f       	add	r19, r19
+ 320:	93 0f       	add	r25, r19
+ 322:	29 1b       	sub	r18, r25
+ 324:	20 5d       	subi	r18, 0xD0	; 208
+}
+
+char r;
+
+void inline uart_send(char data_buffer) {
+	UCSR0B = UCSR0B_SEND;
+ 326:	98 e5       	ldi	r25, 0x58	; 88
+ 328:	90 93 c1 00 	sts	0x00C1, r25	; 0x8000c1 <__TEXT_REGION_LENGTH__+0x7e00c1>
+	while (!(UCSR0B&(1<<TXCIE0)));
+ 32c:	e1 ec       	ldi	r30, 0xC1	; 193
+ 32e:	f0 e0       	ldi	r31, 0x00	; 0
+ 330:	90 81       	ld	r25, Z
+ 332:	96 ff       	sbrs	r25, 6
+ 334:	fd cf       	rjmp	.-6      	; 0x330 <vt100_move+0x16a>
+	while (!(UCSR0A&(1<<UDRE0)));
+ 336:	e0 ec       	ldi	r30, 0xC0	; 192
+ 338:	f0 e0       	ldi	r31, 0x00	; 0
+ 33a:	90 81       	ld	r25, Z
+ 33c:	95 ff       	sbrs	r25, 5
+ 33e:	fd cf       	rjmp	.-6      	; 0x33a <vt100_move+0x174>
+	UDR0 = data_buffer;
+ 340:	20 93 c6 00 	sts	0x00C6, r18	; 0x8000c6 <__TEXT_REGION_LENGTH__+0x7e00c6>
+	uart_send('0' + (x % 10));
+ 344:	9d ec       	ldi	r25, 0xCD	; 205
+ 346:	89 9f       	mul	r24, r25
+ 348:	91 2d       	mov	r25, r1
+ 34a:	11 24       	eor	r1, r1
+ 34c:	96 95       	lsr	r25
+ 34e:	96 95       	lsr	r25
+ 350:	96 95       	lsr	r25
+ 352:	99 0f       	add	r25, r25
+ 354:	29 2f       	mov	r18, r25
+ 356:	22 0f       	add	r18, r18
+ 358:	22 0f       	add	r18, r18
+ 35a:	92 0f       	add	r25, r18
+ 35c:	89 1b       	sub	r24, r25
+ 35e:	80 5d       	subi	r24, 0xD0	; 208
+}
+
+char r;
+
+void inline uart_send(char data_buffer) {
+	UCSR0B = UCSR0B_SEND;
+ 360:	98 e5       	ldi	r25, 0x58	; 88
+ 362:	90 93 c1 00 	sts	0x00C1, r25	; 0x8000c1 <__TEXT_REGION_LENGTH__+0x7e00c1>
+	while (!(UCSR0B&(1<<TXCIE0)));
+ 366:	e1 ec       	ldi	r30, 0xC1	; 193
+ 368:	f0 e0       	ldi	r31, 0x00	; 0
+ 36a:	90 81       	ld	r25, Z
+ 36c:	96 ff       	sbrs	r25, 6
+ 36e:	fd cf       	rjmp	.-6      	; 0x36a <vt100_move+0x1a4>
+	while (!(UCSR0A&(1<<UDRE0)));
+ 370:	e0 ec       	ldi	r30, 0xC0	; 192
+ 372:	f0 e0       	ldi	r31, 0x00	; 0
+ 374:	90 81       	ld	r25, Z
+ 376:	95 ff       	sbrs	r25, 5
+ 378:	fd cf       	rjmp	.-6      	; 0x374 <vt100_move+0x1ae>
+	UDR0 = data_buffer;
+ 37a:	80 93 c6 00 	sts	0x00C6, r24	; 0x8000c6 <__TEXT_REGION_LENGTH__+0x7e00c6>
+}
+
+char r;
+
+void inline uart_send(char data_buffer) {
+	UCSR0B = UCSR0B_SEND;
+ 37e:	88 e5       	ldi	r24, 0x58	; 88
+ 380:	80 93 c1 00 	sts	0x00C1, r24	; 0x8000c1 <__TEXT_REGION_LENGTH__+0x7e00c1>
+	while (!(UCSR0B&(1<<TXCIE0)));
+ 384:	e1 ec       	ldi	r30, 0xC1	; 193
+ 386:	f0 e0       	ldi	r31, 0x00	; 0
+ 388:	80 81       	ld	r24, Z
+ 38a:	86 ff       	sbrs	r24, 6
+ 38c:	fd cf       	rjmp	.-6      	; 0x388 <vt100_move+0x1c2>
+	while (!(UCSR0A&(1<<UDRE0)));
+ 38e:	e0 ec       	ldi	r30, 0xC0	; 192
+ 390:	f0 e0       	ldi	r31, 0x00	; 0
+ 392:	80 81       	ld	r24, Z
+ 394:	85 ff       	sbrs	r24, 5
+ 396:	fd cf       	rjmp	.-6      	; 0x392 <vt100_move+0x1cc>
+	UDR0 = data_buffer;
+ 398:	88 e4       	ldi	r24, 0x48	; 72
+ 39a:	80 93 c6 00 	sts	0x00C6, r24	; 0x8000c6 <__TEXT_REGION_LENGTH__+0x7e00c6>
+ 39e:	08 95       	ret
+
+000003a0 <vt100_clear_screen>:
+}
+
+char r;
+
+void inline uart_send(char data_buffer) {
+	UCSR0B = UCSR0B_SEND;
+ 3a0:	88 e5       	ldi	r24, 0x58	; 88
+ 3a2:	80 93 c1 00 	sts	0x00C1, r24	; 0x8000c1 <__TEXT_REGION_LENGTH__+0x7e00c1>
+	while (!(UCSR0B&(1<<TXCIE0)));
+ 3a6:	e1 ec       	ldi	r30, 0xC1	; 193
+ 3a8:	f0 e0       	ldi	r31, 0x00	; 0
+ 3aa:	80 81       	ld	r24, Z
+ 3ac:	86 ff       	sbrs	r24, 6
+ 3ae:	fd cf       	rjmp	.-6      	; 0x3aa <vt100_clear_screen+0xa>
+	while (!(UCSR0A&(1<<UDRE0)));
+ 3b0:	e0 ec       	ldi	r30, 0xC0	; 192
+ 3b2:	f0 e0       	ldi	r31, 0x00	; 0
+ 3b4:	80 81       	ld	r24, Z
+ 3b6:	85 ff       	sbrs	r24, 5
+ 3b8:	fd cf       	rjmp	.-6      	; 0x3b4 <vt100_clear_screen+0x14>
+	UDR0 = data_buffer;
+ 3ba:	8b e1       	ldi	r24, 0x1B	; 27
+ 3bc:	80 93 c6 00 	sts	0x00C6, r24	; 0x8000c6 <__TEXT_REGION_LENGTH__+0x7e00c6>
+}
+
+char r;
+
+void inline uart_send(char data_buffer) {
+	UCSR0B = UCSR0B_SEND;
+ 3c0:	88 e5       	ldi	r24, 0x58	; 88
+ 3c2:	80 93 c1 00 	sts	0x00C1, r24	; 0x8000c1 <__TEXT_REGION_LENGTH__+0x7e00c1>
+	while (!(UCSR0B&(1<<TXCIE0)));
+ 3c6:	e1 ec       	ldi	r30, 0xC1	; 193
+ 3c8:	f0 e0       	ldi	r31, 0x00	; 0
+ 3ca:	80 81       	ld	r24, Z
+ 3cc:	86 ff       	sbrs	r24, 6
+ 3ce:	fd cf       	rjmp	.-6      	; 0x3ca <vt100_clear_screen+0x2a>
+	while (!(UCSR0A&(1<<UDRE0)));
+ 3d0:	e0 ec       	ldi	r30, 0xC0	; 192
+ 3d2:	f0 e0       	ldi	r31, 0x00	; 0
+ 3d4:	80 81       	ld	r24, Z
+ 3d6:	85 ff       	sbrs	r24, 5
+ 3d8:	fd cf       	rjmp	.-6      	; 0x3d4 <vt100_clear_screen+0x34>
+	UDR0 = data_buffer;
+ 3da:	8b e5       	ldi	r24, 0x5B	; 91
+ 3dc:	80 93 c6 00 	sts	0x00C6, r24	; 0x8000c6 <__TEXT_REGION_LENGTH__+0x7e00c6>
+}
+
+char r;
+
+void inline uart_send(char data_buffer) {
+	UCSR0B = UCSR0B_SEND;
+ 3e0:	88 e5       	ldi	r24, 0x58	; 88
+ 3e2:	80 93 c1 00 	sts	0x00C1, r24	; 0x8000c1 <__TEXT_REGION_LENGTH__+0x7e00c1>
+	while (!(UCSR0B&(1<<TXCIE0)));
+ 3e6:	e1 ec       	ldi	r30, 0xC1	; 193
+ 3e8:	f0 e0       	ldi	r31, 0x00	; 0
+ 3ea:	80 81       	ld	r24, Z
+ 3ec:	86 ff       	sbrs	r24, 6
+ 3ee:	fd cf       	rjmp	.-6      	; 0x3ea <vt100_clear_screen+0x4a>
+	while (!(UCSR0A&(1<<UDRE0)));
+ 3f0:	e0 ec       	ldi	r30, 0xC0	; 192
+ 3f2:	f0 e0       	ldi	r31, 0x00	; 0
+ 3f4:	80 81       	ld	r24, Z
+ 3f6:	85 ff       	sbrs	r24, 5
+ 3f8:	fd cf       	rjmp	.-6      	; 0x3f4 <vt100_clear_screen+0x54>
+	UDR0 = data_buffer;
+ 3fa:	82 e3       	ldi	r24, 0x32	; 50
+ 3fc:	80 93 c6 00 	sts	0x00C6, r24	; 0x8000c6 <__TEXT_REGION_LENGTH__+0x7e00c6>
+}
+
+char r;
+
+void inline uart_send(char data_buffer) {
+	UCSR0B = UCSR0B_SEND;
+ 400:	88 e5       	ldi	r24, 0x58	; 88
+ 402:	80 93 c1 00 	sts	0x00C1, r24	; 0x8000c1 <__TEXT_REGION_LENGTH__+0x7e00c1>
+	while (!(UCSR0B&(1<<TXCIE0)));
+ 406:	e1 ec       	ldi	r30, 0xC1	; 193
+ 408:	f0 e0       	ldi	r31, 0x00	; 0
+ 40a:	80 81       	ld	r24, Z
+ 40c:	86 ff       	sbrs	r24, 6
+ 40e:	fd cf       	rjmp	.-6      	; 0x40a <__LOCK_REGION_LENGTH__+0xa>
+	while (!(UCSR0A&(1<<UDRE0)));
+ 410:	e0 ec       	ldi	r30, 0xC0	; 192
+ 412:	f0 e0       	ldi	r31, 0x00	; 0
+ 414:	80 81       	ld	r24, Z
+ 416:	85 ff       	sbrs	r24, 5
+ 418:	fd cf       	rjmp	.-6      	; 0x414 <__LOCK_REGION_LENGTH__+0x14>
+	UDR0 = data_buffer;
+ 41a:	8a e4       	ldi	r24, 0x4A	; 74
+ 41c:	80 93 c6 00 	sts	0x00C6, r24	; 0x8000c6 <__TEXT_REGION_LENGTH__+0x7e00c6>
+}
+
+char r;
+
+void inline uart_send(char data_buffer) {
+	UCSR0B = UCSR0B_SEND;
+ 420:	88 e5       	ldi	r24, 0x58	; 88
+ 422:	80 93 c1 00 	sts	0x00C1, r24	; 0x8000c1 <__TEXT_REGION_LENGTH__+0x7e00c1>
+	while (!(UCSR0B&(1<<TXCIE0)));
+ 426:	e1 ec       	ldi	r30, 0xC1	; 193
+ 428:	f0 e0       	ldi	r31, 0x00	; 0
+ 42a:	80 81       	ld	r24, Z
+ 42c:	86 ff       	sbrs	r24, 6
+ 42e:	fd cf       	rjmp	.-6      	; 0x42a <__LOCK_REGION_LENGTH__+0x2a>
+	while (!(UCSR0A&(1<<UDRE0)));
+ 430:	e0 ec       	ldi	r30, 0xC0	; 192
+ 432:	f0 e0       	ldi	r31, 0x00	; 0
+ 434:	80 81       	ld	r24, Z
+ 436:	85 ff       	sbrs	r24, 5
+ 438:	fd cf       	rjmp	.-6      	; 0x434 <__LOCK_REGION_LENGTH__+0x34>
+	UDR0 = data_buffer;
+ 43a:	8b e1       	ldi	r24, 0x1B	; 27
+ 43c:	80 93 c6 00 	sts	0x00C6, r24	; 0x8000c6 <__TEXT_REGION_LENGTH__+0x7e00c6>
+}
+
+char r;
+
+void inline uart_send(char data_buffer) {
+	UCSR0B = UCSR0B_SEND;
+ 440:	88 e5       	ldi	r24, 0x58	; 88
+ 442:	80 93 c1 00 	sts	0x00C1, r24	; 0x8000c1 <__TEXT_REGION_LENGTH__+0x7e00c1>
+	while (!(UCSR0B&(1<<TXCIE0)));
+ 446:	e1 ec       	ldi	r30, 0xC1	; 193
+ 448:	f0 e0       	ldi	r31, 0x00	; 0
+ 44a:	80 81       	ld	r24, Z
+ 44c:	86 ff       	sbrs	r24, 6
+ 44e:	fd cf       	rjmp	.-6      	; 0x44a <__LOCK_REGION_LENGTH__+0x4a>
+	while (!(UCSR0A&(1<<UDRE0)));
+ 450:	e0 ec       	ldi	r30, 0xC0	; 192
+ 452:	f0 e0       	ldi	r31, 0x00	; 0
+ 454:	80 81       	ld	r24, Z
+ 456:	85 ff       	sbrs	r24, 5
+ 458:	fd cf       	rjmp	.-6      	; 0x454 <__LOCK_REGION_LENGTH__+0x54>
+	UDR0 = data_buffer;
+ 45a:	8b e5       	ldi	r24, 0x5B	; 91
+ 45c:	80 93 c6 00 	sts	0x00C6, r24	; 0x8000c6 <__TEXT_REGION_LENGTH__+0x7e00c6>
+}
+
+char r;
+
+void inline uart_send(char data_buffer) {
+	UCSR0B = UCSR0B_SEND;
+ 460:	88 e5       	ldi	r24, 0x58	; 88
+ 462:	80 93 c1 00 	sts	0x00C1, r24	; 0x8000c1 <__TEXT_REGION_LENGTH__+0x7e00c1>
+	while (!(UCSR0B&(1<<TXCIE0)));
+ 466:	e1 ec       	ldi	r30, 0xC1	; 193
+ 468:	f0 e0       	ldi	r31, 0x00	; 0
+ 46a:	80 81       	ld	r24, Z
+ 46c:	86 ff       	sbrs	r24, 6
+ 46e:	fd cf       	rjmp	.-6      	; 0x46a <__LOCK_REGION_LENGTH__+0x6a>
+	while (!(UCSR0A&(1<<UDRE0)));
+ 470:	e0 ec       	ldi	r30, 0xC0	; 192
+ 472:	f0 e0       	ldi	r31, 0x00	; 0
+ 474:	80 81       	ld	r24, Z
+ 476:	85 ff       	sbrs	r24, 5
+ 478:	fd cf       	rjmp	.-6      	; 0x474 <__LOCK_REGION_LENGTH__+0x74>
+	UDR0 = data_buffer;
+ 47a:	8f e3       	ldi	r24, 0x3F	; 63
+ 47c:	80 93 c6 00 	sts	0x00C6, r24	; 0x8000c6 <__TEXT_REGION_LENGTH__+0x7e00c6>
+}
+
+char r;
+
+void inline uart_send(char data_buffer) {
+	UCSR0B = UCSR0B_SEND;
+ 480:	88 e5       	ldi	r24, 0x58	; 88
+ 482:	80 93 c1 00 	sts	0x00C1, r24	; 0x8000c1 <__TEXT_REGION_LENGTH__+0x7e00c1>
+	while (!(UCSR0B&(1<<TXCIE0)));
+ 486:	e1 ec       	ldi	r30, 0xC1	; 193
+ 488:	f0 e0       	ldi	r31, 0x00	; 0
+ 48a:	80 81       	ld	r24, Z
+ 48c:	86 ff       	sbrs	r24, 6
+ 48e:	fd cf       	rjmp	.-6      	; 0x48a <__LOCK_REGION_LENGTH__+0x8a>
+	while (!(UCSR0A&(1<<UDRE0)));
+ 490:	e0 ec       	ldi	r30, 0xC0	; 192
+ 492:	f0 e0       	ldi	r31, 0x00	; 0
+ 494:	80 81       	ld	r24, Z
+ 496:	85 ff       	sbrs	r24, 5
+ 498:	fd cf       	rjmp	.-6      	; 0x494 <__LOCK_REGION_LENGTH__+0x94>
+	UDR0 = data_buffer;
+ 49a:	82 e3       	ldi	r24, 0x32	; 50
+ 49c:	80 93 c6 00 	sts	0x00C6, r24	; 0x8000c6 <__TEXT_REGION_LENGTH__+0x7e00c6>
+}
+
+char r;
+
+void inline uart_send(char data_buffer) {
+	UCSR0B = UCSR0B_SEND;
+ 4a0:	88 e5       	ldi	r24, 0x58	; 88
+ 4a2:	80 93 c1 00 	sts	0x00C1, r24	; 0x8000c1 <__TEXT_REGION_LENGTH__+0x7e00c1>
+	while (!(UCSR0B&(1<<TXCIE0)));
+ 4a6:	e1 ec       	ldi	r30, 0xC1	; 193
+ 4a8:	f0 e0       	ldi	r31, 0x00	; 0
+ 4aa:	80 81       	ld	r24, Z
+ 4ac:	86 ff       	sbrs	r24, 6
+ 4ae:	fd cf       	rjmp	.-6      	; 0x4aa <__LOCK_REGION_LENGTH__+0xaa>
+	while (!(UCSR0A&(1<<UDRE0)));
+ 4b0:	e0 ec       	ldi	r30, 0xC0	; 192
+ 4b2:	f0 e0       	ldi	r31, 0x00	; 0
+ 4b4:	80 81       	ld	r24, Z
+ 4b6:	85 ff       	sbrs	r24, 5
+ 4b8:	fd cf       	rjmp	.-6      	; 0x4b4 <__LOCK_REGION_LENGTH__+0xb4>
+	UDR0 = data_buffer;
+ 4ba:	85 e3       	ldi	r24, 0x35	; 53
+ 4bc:	80 93 c6 00 	sts	0x00C6, r24	; 0x8000c6 <__TEXT_REGION_LENGTH__+0x7e00c6>
+}
+
+char r;
+
+void inline uart_send(char data_buffer) {
+	UCSR0B = UCSR0B_SEND;
+ 4c0:	88 e5       	ldi	r24, 0x58	; 88
+ 4c2:	80 93 c1 00 	sts	0x00C1, r24	; 0x8000c1 <__TEXT_REGION_LENGTH__+0x7e00c1>
+	while (!(UCSR0B&(1<<TXCIE0)));
+ 4c6:	e1 ec       	ldi	r30, 0xC1	; 193
+ 4c8:	f0 e0       	ldi	r31, 0x00	; 0
+ 4ca:	80 81       	ld	r24, Z
+ 4cc:	86 ff       	sbrs	r24, 6
+ 4ce:	fd cf       	rjmp	.-6      	; 0x4ca <__LOCK_REGION_LENGTH__+0xca>
+	while (!(UCSR0A&(1<<UDRE0)));
+ 4d0:	e0 ec       	ldi	r30, 0xC0	; 192
+ 4d2:	f0 e0       	ldi	r31, 0x00	; 0
+ 4d4:	80 81       	ld	r24, Z
+ 4d6:	85 ff       	sbrs	r24, 5
+ 4d8:	fd cf       	rjmp	.-6      	; 0x4d4 <__LOCK_REGION_LENGTH__+0xd4>
+	UDR0 = data_buffer;
+ 4da:	8c e6       	ldi	r24, 0x6C	; 108
+ 4dc:	80 93 c6 00 	sts	0x00C6, r24	; 0x8000c6 <__TEXT_REGION_LENGTH__+0x7e00c6>
+ 4e0:	08 95       	ret
+
+000004e2 <_exit>:
+ 4e2:	f8 94       	cli
+
+000004e4 <__stop_program>:
+ 4e4:	ff cf       	rjmp	.-2      	; 0x4e4 <__stop_program>
