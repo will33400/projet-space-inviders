@@ -11,6 +11,10 @@
 
 #include <avr/io.h>
 
+//#define F_CPU 11059200UL
+#define F_CPU 8000000UL
+#include <util/delay.h>
+
 #define UCSR0A_INIT (1<<UDRE0)
 
 #define UCSR0B_TXIEN (1<<TXCIE0)
@@ -18,7 +22,7 @@
 #define UCSR0B_RXEN (1<<RXEN0)
 #define UCSR0B_TXEN (1<<TXEN0)
 #define UCSR0B_INIT (UCSR0B_RXIEN | UCSR0B_TXIEN | UCSR0B_TXEN | UCSR0B_RXEN)
-#define UCSR0B_SEND (1<<TXCIE0) | (1<<RXEN0) | (1<<TXEN0)
+#define UCSR0B_SEND (1<<TXCIE0) | (1<<RXCIE0) | (1<<RXEN0) | (1<<TXEN0)
 
 #define UCSR0C_SB (1<<USBS0)
 #define UCSR0C_MODE_1 ((1<<UCSZ01) | (1<<UCSZ00))
@@ -30,9 +34,22 @@
 char uart_data[256];
 char uart_data_long;
 
-void inline uart_init(void) {
+void inline uart_init(uint32_t baud) {
 	//baud_rate 9600
 	//ubrr_set = F_CPU/16/baud_rate-1
+	
+	//Bits 7:0 UBRR0[7:0]: USART Baud Rate 0
+	
+	uint32_t ubrr_rate = F_CPU / (16 * baud) - 1;
+	
+	UBRR0 = ubrr_rate;
+	
+	//UBRR0H = (uint8_t) (8>>ubrr_rate);
+	//UBRR0L = (uint8_t) ubrr_rate;
+	
+	//while(!(UBRR0H&(8>>ubrr_rate))&&!(UBRR0L&(ubrr_rate)));
+	
+	//Bits 3:0 UBRR0[3:0]: USART Baud Rate 0 n [n = 11:8]
 	
 	UCSR0A = UCSR0A_INIT;
 	/*
@@ -65,21 +82,11 @@ void inline uart_init(void) {
 	Bit 1 UCSZ00 / UCPHA0: USART Character Size / Clock Phase
 	Bit 0 UCPOL0: Clock Polarity 0
 	*/
-	//UBRR0L = 0b00000001;
-	UBRR0L = BAUD_9600_8MHZ;
-	//UBRR0L = 3;
-	/*
-	Bits 7:0 UBRR0[7:0]: USART Baud Rate 0
-	*/
-	//UBRR0H = 0b00000000;
-	UBRR0H = 0;
-	/*
-	Bits 3:0 UBRR0[3:0]: USART Baud Rate 0 n [n = 11:8]
-	*/
+
 	//UDR0 = 0b00000000;
-	/*
-	Bits 7:0 TXB / RXB[7:0]: USART Transmit / Receive Data Buffer
-	*/
+	
+	//Bits 7:0 TXB / RXB[7:0]: USART Transmit / Receive Data Buffer
+	
 }
 
 char r;
@@ -115,15 +122,15 @@ void inline transmission_complete() {
 }
 
 void inline keyboard_mode() {
-	UCSR0B &= ~(1<<RXCIE0);
-	while (UCSR0B&(1<<RXCIE0));
+	//UCSR0B &= ~(1<<RXCIE0);
+	//while (UCSR0B&(1<<RXCIE0));
 	
 	r = UDR0;
 	
 	uart_send(r);
 	
-	UCSR0B |= (1<<RXCIE0);
-	while (!(UCSR0B&(1<<RXCIE0)));
+	//UCSR0B |= (1<<RXCIE0);
+	//while (!(UCSR0B&(1<<RXCIE0)));
 }
 
 #endif /* UART_H_ */

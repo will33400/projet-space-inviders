@@ -7,6 +7,7 @@
 #include "space_invaders.h"
 #include "vt100.h"
 
+int pin_scroll;
 
 ISR(USART_TX_vect, ISR_BLOCK) {
 	transmission_complete();
@@ -14,25 +15,33 @@ ISR(USART_TX_vect, ISR_BLOCK) {
 }
 
 ISR(USART_RX_vect, ISR_BLOCK) {
-	vt100_clear_screen();
-	keyboard_mode();
+	//vt100_clear_screen();
+	pin_scroll = 1;
 	//uart_init();
 }
 
+/*
+ISR(PCINT1_vect, ISR_BLOCK) {
+	
+	int test_pin = PINC;
+	test_pin &= 0x30;
+	if(test_pin == (1<<PINC4)) pin_scroll = (1<<PINC4);
+	else pin_scroll = (1<<PINC5);
+	
+}
+*/
 int main(void) {
 	
-	uart_init();
+	uart_init(9600);
 	sei();
-	
-	vt100_move(0,0);
-	
-	vt100_clear_screen();
-	uart_send('a');
-	vt100_move(5,5);
-	uart_send('e');
-	
+	//uart_send('A');
+	init_screen();
+	//init_spaceship();
 	while(1) {
-		
+		if(pin_scroll == 1) {
+			keyboard_mode();
+			pin_scroll = 0;
+		}
 	}
 	
 	
