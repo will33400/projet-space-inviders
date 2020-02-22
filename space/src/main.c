@@ -33,6 +33,7 @@
 #include "serial.h"
 #include "space_invaders.h"
 #include "timer.h"
+#include "delay.h"
 
 int main(void) {
 
@@ -42,7 +43,7 @@ int main(void) {
 	charge_level(MENU);
 
 	while (1) {
-		delay_(100);
+		delay_(25);
 
 		scroll_shoot();
 

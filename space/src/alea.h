@@ -2,12 +2,10 @@
 #ifndef ALEA_H
 #define ALEA_H
 
+#include "stdint.h"
+
 uint8_t LFSR;
 
-void LFSR_update() {
-	LFSR >>= 1;
-	LFSR |= (((LFSR >> 1) & 1) ^ ((LFSR >> 3) & 1) ^ ((LFSR >> 5) & 1)) << 7;
- }
-
+void LFSR_update(void);
 
 #endif
