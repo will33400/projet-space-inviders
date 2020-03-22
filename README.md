@@ -12,7 +12,7 @@
 * compile and throw then quit the debug by typing F11 then Ctrl+F2 to transfer the program
 
  ## Windows
-* install PuTTY
+* install PuTTY https://putty.org/
 * select Serial, type the right port number (could be found on Control Panel>view devices and printers>FT232R USB UART>(right-click)properties>hardware)
 * type 115200 baudrate (Speed statement)
 * click Open
