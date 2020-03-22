@@ -1,5 +1,5 @@
 
-# projet-space-inviders
+# PROJECT_SPACE_INVADERS
 
 # Objectives
 
